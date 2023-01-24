@@ -14,6 +14,9 @@ public class Wget implements Runnable {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        if (args.length != 3) {
+            throw new IllegalArgumentException("args length must be = 3!");
+        }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
         Thread wget = new Thread(new Wget(url, speed));
@@ -23,18 +26,25 @@ public class Wget implements Runnable {
 
     @Override
     public void run() {
+        String[] output = url.split("/");
+        String out = output[output.length - 1] + ".txt";
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream("pom_tmp.xml")) {
+             FileOutputStream fileOutputStream = new FileOutputStream(out)) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
-            long startTime = System.currentTimeMillis();
+            int downloadData = 0;
             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                long startTime = System.currentTimeMillis();
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-            }
-            long finishTime = System.currentTimeMillis();
-            long resTime = finishTime - startTime;
-            if ((resTime) < speed) {
-                Thread.sleep(speed - resTime);
+                downloadData += bytesRead;
+                if (downloadData >= speed) {
+                    long finishTime = System.currentTimeMillis();
+                    long resTime = finishTime - startTime;
+                    if ((resTime) < 1000) {
+                        Thread.sleep(1000 - resTime);
+                    }
+                }
+                downloadData = 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
