@@ -14,8 +14,8 @@ public class Wget implements Runnable {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length != 3) {
-            throw new IllegalArgumentException("args length must be = 3!");
+        if (args.length != 2) {
+            throw new IllegalArgumentException("args length must be = 2!");
         }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
@@ -33,8 +33,8 @@ public class Wget implements Runnable {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
             int downloadData = 0;
+            long startTime = System.currentTimeMillis();
             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                long startTime = System.currentTimeMillis();
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
                 downloadData += bytesRead;
                 if (downloadData >= speed) {
@@ -43,8 +43,9 @@ public class Wget implements Runnable {
                     if ((resTime) < 1000) {
                         Thread.sleep(1000 - resTime);
                     }
+                    downloadData = 0;
+                    startTime = System.currentTimeMillis();
                 }
-                downloadData = 0;
             }
         } catch (Exception e) {
             e.printStackTrace();
