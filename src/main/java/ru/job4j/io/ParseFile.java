@@ -19,21 +19,17 @@ public class ParseFile {
         this.iReader = iReader;
     }
 
-    public synchronized File getFile() {
-        return file;
-    }
-
     public String readContent(Predicate<Character> filter) throws IOException {
         return iReader.content(filter);
     }
 
     public void saveContent(String content) throws IOException {
-        iSaver.saveContent(content);
+        iSaver.save(content);
     }
 
     class Saver implements ISaver {
         @Override
-        public void saveContent(String content) throws IOException {
+        public void save(String content) throws IOException {
             try (BufferedOutputStream o = new BufferedOutputStream(new FileOutputStream(file))) {
                 for (int i = 0; i < content.length(); i += 1) {
                     o.write(content.charAt(i));
