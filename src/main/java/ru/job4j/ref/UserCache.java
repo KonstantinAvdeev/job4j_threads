@@ -21,11 +21,11 @@ public class UserCache {
     }
 
     public List<User> findAll() {
-        ConcurrentHashMap<Integer, User> usersCopy = new ConcurrentHashMap<>();
-        for (Integer i : users.keySet()) {
-            usersCopy.put(i, User.of(users.get(i).getName()));
+        List<User> list = new ArrayList<>();
+        for (User user : users.values()) {
+            list.add(user);
         }
-        return new ArrayList<>(usersCopy.values());
+        return list;
     }
 
 }
