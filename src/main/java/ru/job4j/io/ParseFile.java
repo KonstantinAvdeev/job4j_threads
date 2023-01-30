@@ -1,12 +1,7 @@
 package ru.job4j.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.function.Predicate;
 
 public class ParseFile {
     private final File file;
@@ -19,39 +14,16 @@ public class ParseFile {
         this.iReader = iReader;
     }
 
-    public String readContent(Predicate<Character> filter) throws IOException {
-        return iReader.content(filter);
+    public String readContent() throws IOException {
+        return iReader.content(data -> true);
+    }
+
+    public String readContentWithoutUnicode() throws IOException {
+        return iReader.content(data -> data < 0x80);
     }
 
     public void saveContent(String content) throws IOException {
         iSaver.save(content);
     }
 
-    class Saver implements ISaver {
-        @Override
-        public void save(String content) throws IOException {
-            try (BufferedOutputStream o = new BufferedOutputStream(new FileOutputStream(file))) {
-                for (int i = 0; i < content.length(); i += 1) {
-                    o.write(content.charAt(i));
-                }
-            }
-        }
-    }
-
-    class Reader implements IReader {
-        @Override
-        public String content(Predicate<Character> filter) throws IOException {
-            String output;
-            try (BufferedInputStream i = new BufferedInputStream(new FileInputStream(file))) {
-                output = "";
-                int data;
-                while ((data = i.read()) > 0) {
-                    if (filter.test((char) data)) {
-                        output += (char) data;
-                    }
-                }
-            }
-            return output;
-        }
-    }
 }
