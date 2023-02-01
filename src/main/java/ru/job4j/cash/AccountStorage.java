@@ -4,29 +4,19 @@ import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 import java.util.HashMap;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @ThreadSafe
 public class AccountStorage {
     @GuardedBy("this")
     private final HashMap<Integer, Account> accounts = new HashMap<>();
-    private final AtomicInteger atomicInteger = new AtomicInteger();
 
     public synchronized boolean add(Account account) {
-        if (accounts.containsKey(account.id())) {
-            return false;
-        }
-        return accounts.put(atomicInteger.incrementAndGet(), account) != null;
+        return account.equals(accounts.putIfAbsent(account.id(), account));
     }
 
     public synchronized boolean update(Account account) {
-        var accountFromStorage = getById(account.id());
-        if (accountFromStorage.isEmpty()) {
-            throw new NoSuchElementException("Have Not this Account in Storage!");
-        }
-        return accounts.put(account.id(), account) != null;
+        return getById(account.id()).get().equals(accounts.put(account.id(), account));
     }
 
     public synchronized boolean delete(int id) {
@@ -38,17 +28,13 @@ public class AccountStorage {
     }
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
-        var acc1 = getById(fromId);
-        var acc2 = getById(toId);
-        if (acc1.isEmpty() || acc2.isEmpty() || acc1.get().amount() - amount < 0) {
+        var accForTransferFrom = getById(fromId);
+        var accForTransferTo = getById(toId);
+        if (accForTransferFrom.isEmpty() || accForTransferTo.isEmpty() || accForTransferFrom.get().amount() - amount < 0) {
             return false;
         }
-        int minus = acc1.get().amount();
-        minus -= amount;
-        int plus = acc2.get().amount();
-        plus += amount;
-        Account account1 = new Account(fromId, minus);
-        Account account2 = new Account(toId, plus);
+        Account account1 = new Account(fromId, accForTransferFrom.get().amount() - amount);
+        Account account2 = new Account(toId, accForTransferTo.get().amount() + amount);
         update(account1);
         update(account2);
         return true;
