@@ -17,7 +17,7 @@ public class SimpleBlockingQueueTest {
     List<Integer> list = new LinkedList<>();
 
     @Test
-    public void whenProduce() throws InterruptedException {
+    public void whenProduceAndConsume() throws InterruptedException {
         Thread producer = new Thread(() -> {
             for (int i = 0; i < 8; i++) {
                 queue.offer(i);

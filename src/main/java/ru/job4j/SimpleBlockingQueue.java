@@ -11,7 +11,10 @@ public class SimpleBlockingQueue<T> {
 
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
-    private int limit;
+    private int limit = 3;
+
+    public SimpleBlockingQueue() {
+    }
 
     public SimpleBlockingQueue(int limit) {
         this.limit = limit;
@@ -21,7 +24,7 @@ public class SimpleBlockingQueue<T> {
         synchronized (this) {
             while (queue.size() == limit) {
                 try {
-                    this.wait();
+                    wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -35,7 +38,7 @@ public class SimpleBlockingQueue<T> {
         synchronized (this) {
             while (queue.isEmpty()) {
                 try {
-                    this.wait();
+                    wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
