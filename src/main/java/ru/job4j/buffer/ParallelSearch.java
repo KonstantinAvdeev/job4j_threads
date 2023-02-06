@@ -28,11 +28,11 @@ public class ParallelSearch {
                             Thread.currentThread().interrupt();
                         }
                     }
+                    consumer.interrupt();
                 }
         );
         producer.start();
         producer.join();
-        consumer.interrupt();
     }
 
 }
