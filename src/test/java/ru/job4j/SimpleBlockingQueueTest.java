@@ -1,45 +1,49 @@
 package ru.job4j;
 
-import net.jcip.annotations.ThreadSafe;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.IntStream;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-@ThreadSafe
 public class SimpleBlockingQueueTest {
-
     @Test
-    public void whenProduceAndConsume() throws InterruptedException {
-        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(8);
-        List<Integer> list = new LinkedList<>();
-        Thread producer = new Thread(() -> {
-            for (int i = 0; i < 8; i++) {
-                try {
-                    queue.offer(i);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+    public void whenFetchAllThenGetIt() throws InterruptedException {
+        final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
+        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
+        Thread producer = new Thread(
+                () -> {
+                    IntStream.range(0, 5).forEach(
+                            value -> {
+                                try {
+                                    queue.offer(value);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                    );
                 }
-            }
-        });
-        Thread consumer = new Thread(() -> {
-            for (int i = 8; i > 0; i--) {
-                try {
-                    list.add(queue.poll());
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
+        );
         producer.start();
+        Thread consumer = new Thread(
+                () -> {
+                    while (!queue.isEmpty() || !Thread.currentThread().isInterrupted()) {
+                        try {
+                            buffer.add(queue.poll());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+        );
         consumer.start();
         producer.join();
+        consumer.interrupt();
         consumer.join();
-        assertThat(list.get(7), is(7));
-        assertThat(list.get(5), is(5));
+        assertThat(buffer, is(Arrays.asList(0, 1, 2, 3, 4)));
     }
-
 }
