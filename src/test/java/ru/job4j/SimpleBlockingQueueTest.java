@@ -1,6 +1,5 @@
 package ru.job4j;
 
-import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 import org.junit.Test;
 
@@ -12,20 +11,27 @@ import static org.junit.Assert.assertThat;
 
 @ThreadSafe
 public class SimpleBlockingQueueTest {
-    @GuardedBy("this")
-    SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(8);
-    List<Integer> list = new LinkedList<>();
 
     @Test
     public void whenProduceAndConsume() throws InterruptedException {
+        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(8);
+        List<Integer> list = new LinkedList<>();
         Thread producer = new Thread(() -> {
             for (int i = 0; i < 8; i++) {
-                queue.offer(i);
+                try {
+                    queue.offer(i);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         });
         Thread consumer = new Thread(() -> {
             for (int i = 8; i > 0; i--) {
-                list.add(queue.poll());
+                try {
+                    list.add(queue.poll());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         });
         producer.start();
