@@ -28,15 +28,19 @@ public class Cache {
 
     @Override
     public String toString() {
-        return "Cache{" +
-                "memory=" + memory +
-                '}';
+        return "Cache{"
+                + "memory=" + memory
+                + '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Cache cache = (Cache) o;
         return Objects.equals(memory, cache.memory);
     }
