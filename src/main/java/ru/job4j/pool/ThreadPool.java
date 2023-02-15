@@ -12,8 +12,7 @@ public class ThreadPool {
 
     public ThreadPool() {
         for (int i = 0; i < size; i++) {
-            threads.add(new Thread(() ->
-            {
+            threads.add(new Thread(() -> {
                 try {
                     tasks.poll().run();
                 } catch (InterruptedException e) {
