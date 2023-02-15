@@ -11,7 +11,7 @@ public class SimpleBlockingQueue<T> {
 
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
-    private int limit = 3;
+    private int limit = 10;
 
     public SimpleBlockingQueue() {
     }
