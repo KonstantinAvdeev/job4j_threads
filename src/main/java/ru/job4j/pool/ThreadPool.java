@@ -25,14 +25,6 @@ public class ThreadPool {
         threads.forEach(Thread::start);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        ThreadPool threadPool = new ThreadPool();
-        for (int i = 0; i < 10; i++) {
-            threadPool.work(() -> System.out.println("Hello World!" + Thread.currentThread().getName()));
-        }
-        threadPool.shutdown();
-    }
-
     public void work(Runnable job) throws InterruptedException {
         tasks.offer(job);
     }
