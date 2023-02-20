@@ -2,8 +2,11 @@ package ru.job4j.pools;
 
 public class ArraySearch {
 
-    public static int index(Object[] array, Object object) {
-        for (int i = 0; i < array.length; i++) {
+    public static int index(Object[] array, int from, int to, Object object) {
+        for (int i = from; i < to; i++) {
+            if (array[i].getClass() != object.getClass()) {
+                throw new IllegalArgumentException("Different types!");
+            }
             if (object.equals(array[i])) {
                 return i;
             }
